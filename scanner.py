@@ -5,6 +5,7 @@ __description__ = 'nmap scanner'
 __author__ = 'Froststein'
 __version__ = '0.2'
 
+import pathlib
 import nmap
 import csv
 import optparse
@@ -21,41 +22,19 @@ def readInput(inputfile):
                 ip_list+=[f'{"".join(row)}']
     return ip_list
     
-def saveCSV(result,outputfile):
-    with open('scan/'+outputfile,'a',newline='') as csvfile:
-        reader=csv.writer(csvfile)
-        reader.writerow(result)
-    csvfile.close()
-    
 def scanNmapXML(inputfile,outputfile):
+    checkDir()
     command="nmap -iL "+ inputfile +" -oX logs/"+outputfile+".xml"
     os.system(command)
     
-def scanNmapCSV(inputfile,outputfile):
-    ip_list = readInput(inputfile)
-    print("Scanner Starting.......")
-    ns = nmap.PortScanner()
-    outputfile=outputfile+'.csv'
-    for ip in ip_list:
-        ns.scan(ip,'1-1024','-v -sS ')
-        print(ns.scaninfo())
-        print("IP Status: ",ns[ip].state())
-        print("Open Ports: ", ns[ip]['tcp'].keys())
-        lports=ns[ip]['tcp'].keys()
-        RESULT=[]
-        RESULT.append(ip)
-        port_list=[]
-        for port in lports:
-            print('port : %s\tstate : %s' % (port, ns[ip]['tcp'][port]['state']))
-            port_list.append('%s|%s'%(port,ns[ip]['tcp'][port]['state']))
-        RESULT.append(port_list)
-        saveCSV(RESULT,outputfile)
-        print(RESULT)
+def checkDir():
+    if not os.path.exists('./logs'):
+        os.mkdir('logs')
         
+
 def initializeScan(inputfile,outputfile):
     try:
         f=open(inputfile)
-        scanNmapCSV(inputfile,outputfile)
         scanNmapXML(inputfile,outputfile)
         f.close()
     except FileNotFoundError:
