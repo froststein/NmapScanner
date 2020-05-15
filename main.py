@@ -144,4 +144,3 @@ if __name__ == '__main__':
         revert()
     except RuntimeError as e:
         print('Opps... something went wrong. Please try again.')
-
